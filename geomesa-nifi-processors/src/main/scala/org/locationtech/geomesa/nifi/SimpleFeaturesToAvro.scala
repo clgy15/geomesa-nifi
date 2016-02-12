@@ -62,7 +62,9 @@ class SimpleFeaturesToAvro extends AbstractProcessor {
           val dfw = new AvroDataFileWriter(out)
           dfw.init(converter.targetSFT)
           try {
-            converter.process(in).foreach(dfw.append)
+            val ec = converter.createEvaluationContext(Map("inputFilePath" ->
+              (flowFile.getAttribute("path") + flowFile.getAttribute("filename"))))
+            converter.process(in, ec).foreach(dfw.append)
           } finally {
             dfw.close()
           }
