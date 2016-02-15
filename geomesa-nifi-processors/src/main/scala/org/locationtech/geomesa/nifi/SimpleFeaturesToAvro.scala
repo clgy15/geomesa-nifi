@@ -59,8 +59,7 @@ class SimpleFeaturesToAvro extends AbstractProcessor {
     try {
       val newFlowFile = session.write(flowFile, new StreamCallback {
         override def process(in: InputStream, out: OutputStream): Unit = {
-          val dfw = new AvroDataFileWriter(out)
-          dfw.init(converter.targetSFT)
+          val dfw = new AvroDataFileWriter(out, converter.targetSFT)
           try {
             val ec = converter.createEvaluationContext(Map("inputFilePath" ->
               (flowFile.getAttribute("path") + flowFile.getAttribute("filename"))))
