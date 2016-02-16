@@ -57,6 +57,7 @@ class AvroToGeomesa extends AbstractProcessor {
         override def process(in: InputStream): Unit = {
           val reader = new AvroDataFileReader(in)
           try {
+            dataStore.createSchema(reader.getSft)
             val fw = dataStore.getFeatureWriterAppend(reader.getSft.getTypeName, Transaction.AUTO_COMMIT)
             try {
               reader.foreach { sf =>
