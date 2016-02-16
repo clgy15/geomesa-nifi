@@ -59,11 +59,11 @@ class SimpleFeaturesToAvro extends AbstractProcessor {
     try {
       val newFlowFile = session.write(flowFile, new StreamCallback {
         override def process(in: InputStream, out: OutputStream): Unit = {
-          val dfw = new AvroDataFileWriter(out)
-          dfw.init(converter.targetSFT)
+          val dfw = new AvroDataFileWriter(out, converter.targetSFT)
           try {
-            val ec = converter.createEvaluationContext(Map("inputFilePath" ->
-              (flowFile.getAttribute("path") + flowFile.getAttribute("filename"))))
+            val fullFlowFileName = flowFile.getAttribute("path") + flowFile.getAttribute("filename")
+            getLogger.info(s"Converting path $fullFlowFileName")
+            val ec = converter.createEvaluationContext(Map("inputFilePath" -> fullFlowFileName))
             converter.process(in, ec).foreach(dfw.append)
           } finally {
             dfw.close()
@@ -75,8 +75,6 @@ class SimpleFeaturesToAvro extends AbstractProcessor {
       case e: Exception =>
         getLogger.error(s"Error converter file to avro: ${e.getMessage}", e)
         session.transfer(flowFile, FailureRelationship)
-    } finally {
-      converter.close()
     }
   }
 
